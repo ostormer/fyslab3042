@@ -100,7 +100,7 @@ k = d2y/(1 + dy**2)**(3/2)
 a_normal = v_x**2*k
 N = M*(g*np.cos(np.arctan(dy)) + a_normal)
 F = (2*M*g*np.sin(np.arctan(dy)))/7
-plt.plot(x, F/N)
+#plt.plot(x, F/N)
 #print(x_t)
 #print(y_t)
 #plt.plot(x_t, y_t)
