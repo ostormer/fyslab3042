@@ -119,6 +119,7 @@ def printXofT():
     plt.xlabel("Tid t - (s)")
     plt.ylabel("Posisjon x - (m)")
     plt.grid()
+    plt.savefig("figurer/XofT")
     plt.show()
 
 def printVofT():
@@ -128,6 +129,7 @@ def printVofT():
     plt.xlabel("Tid t - (s)")
     plt.ylabel("Hastighet v - (m/s)")
     plt.grid()
+    plt.savefig("figurer/VofT")
     plt.show()
 
 def printFofX():
@@ -137,6 +139,7 @@ def printFofX():
     plt.xlabel("Posisjon x - (m)")
     plt.ylabel("Friksjonskraft f - (mN)")
     plt.grid()
+    plt.savefig("figurer/FofX")
     plt.show()
 
 def printNofX():
@@ -146,6 +149,7 @@ def printNofX():
     plt.xlabel("Posisjon x - (m)")
     plt.ylabel("Normalkraft N - (mN)")
     plt.grid()
+    plt.savefig("figurer/NofX")
     plt.show()
 
 
