@@ -80,28 +80,81 @@ x_t = [x0] * 1001
 y_t = [y0] * 1001
 v_t = [v0] * 1001
 t_list = [t0] * 1001
+
+
 def a(x):
     return -(5*g/7)*np.sin(np.arctan(cs(x,1)))
+
+
 for n in range(1000):
     x_t[n + 1] = x_t[n] + v_t[n] * dt
     y_t[n + 1] = cs(x_t[n + 1])
     current_a = a(x_t[n + 1])
     v_t[n + 1] = v_t[n] + current_a * dt
     t_list[n + 1] = (n + 1) * dt
+
+  
 #finner N mhp x
 v_x = np.sqrt((2*g*(y0-y))/(1+c))
 k = d2y/(1 + dy**2)**(3/2)
 a_normal = v_x**2*k
 N = M*(g*np.cos(np.arctan(dy)) + a_normal)
 F = (2*M*g*np.sin(np.arctan(dy)))/7
-plt.plot(x, F/N)
-print(x_t)
-print(y_t)
-plt.plot(x_t, y_t)
+#plt.plot(x, F/N)
+#print(x_t)
+#print(y_t)
+#plt.plot(x_t, y_t)
 #N/R bør være mindre enn 0.2
 #plt.plot(t_new, x_new)
 #plt.plot()
 #plt.plot(x,y)
 
-plt.grid()
-plt.show()
+#plt.grid()
+#plt.show()
+
+def printXofT():
+    plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
+    plt.plot(t_list, x_t)
+    #plt.title("")
+    plt.xlabel("Tid t - (s)")
+    plt.ylabel("Posisjon x - (m)")
+    plt.grid()
+    plt.savefig("figurer/XofT")
+    plt.show()
+
+def printVofT():
+    plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
+    plt.plot(t_list, v_t)
+    #plt.title("")
+    plt.xlabel("Tid t - (s)")
+    plt.ylabel("Hastighet v - (m/s)")
+    plt.grid()
+    plt.savefig("figurer/VofT")
+    plt.show()
+
+def printFofX():
+    plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
+    plt.plot(x, F)
+    #plt.title("")
+    plt.xlabel("Posisjon x - (m)")
+    plt.ylabel("Friksjonskraft f - (mN)")
+    plt.grid()
+    plt.savefig("figurer/FofX")
+    plt.show()
+
+def printNofX():
+    plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
+    plt.plot(x, N)
+    #plt.title("")
+    plt.xlabel("Posisjon x - (m)")
+    plt.ylabel("Normalkraft N - (mN)")
+    plt.grid()
+    plt.savefig("figurer/NofX")
+    plt.show()
+
+
+if __name__ == "__main__":
+    printXofT()
+    printVofT()
+    printFofX()
+    printNofX()
