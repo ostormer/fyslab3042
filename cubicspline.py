@@ -1,91 +1,68 @@
-# TFY41xx Fysikk vaaren 2021.
-#
-# Programmet tar utgangspunkt i hoeyden til de 8 festepunktene.
-# Deretter beregnes baneformen y(x) ved hjelp av 7 tredjegradspolynomer, 
-# et for hvert intervall mellom to festepunkter, slik at baade banen y, 
-# dens stigningstall y' = dy/dx og dens andrederiverte
-# y'' = d2y/dx2 er kontinuerlige i de 6 indre festepunktene.
-# I tillegg velges null krumning (andrederivert) 
-# i banens to ytterste festepunkter (med bc_type='natural' nedenfor).
-# Dette gir i alt 28 ligninger som fastlegger de 28 koeffisientene
-# i de i alt 7 tredjegradspolynomene.
-
-# De ulike banene er satt opp med tanke paa at kula skal 
-# (1) fullfoere hele banen selv om den taper noe mekanisk energi underveis;
-# (2) rulle rent, uten aa gli ("slure").
-
 #Importerer noedvendige biblioteker:
 import matplotlib.pyplot as plt
 import math
 import numpy as np
 from scipy.interpolate import CubicSpline
 
-
+# Banens startpunkter (t=0):
 t, x, y = np.genfromtxt("data/bane.csv", delimiter=",", skip_header=2, unpack=True)
-#t0, x0, y0 = np.genfromtxt("data/10.csv", )
 
-#Horisontal avstand mellom festepunktene er 0.200 m
-h = 0.200
+# Festepunktene til banen - 8 stk:
 xfast = x
-#Skriv inn y-verdiene til banens 8 festepunkter i tabellen yfast.
-#Et vilkaarlig eksempel:
 yfast = y
-#Erstatt med egne tallverdier avlest i tracker.
-#Programmet beregner de 7 tredjegradspolynomene, et
-#for hvert intervall mellom to festepunkter,
-#med funksjonen CubicSpline:
+
+# Beregner tredjegradspolynomene av banen.
+# Gir y(x), y'(x) og y''(x) 
+# av cs(x), cs(x,1) og cs(x,2)
 cs = CubicSpline(xfast, yfast, bc_type='natural')
-#Funksjonen cs kan naa brukes til aa regne ut y(x), y'(x) og y''(x)
-#for en vilkaarlig horisontal posisjon x, eventuelt for mange horisontale
-#posisjoner lagret i en tabell:
-#cs(x)   tilsvarer y(x)
-#cs(x,1) tilsvarer y'(x)
-#cs(x,2) tilsvarer y''(x)
-#Her lager vi en tabell med x-verdier mellom 0 og 1.4 m
+
+# Tabell med x-verdier mellom 0 og 1.4 m 
 xmin = 0.000
 xmax = 1.401
 dx = 0.001
 x = np.arange(xmin, xmax, dx)   
-#Funksjonen arange returnerer verdier paa det "halvaapne" intervallet
-#[xmin,xmax), dvs slik at xmin er med mens xmax ikke er med. Her blir
-#dermed x[0]=xmin=0.000, x[1]=xmin+1*dx=0.001, ..., x[1400]=xmax-dx=1.400, 
-#dvs x blir en tabell med 1401 elementer
-Nx = len(x)
-y = cs(x)       #y=tabell med 1401 verdier for y(x)
-dy = cs(x,1)    #dy=tabell med 1401 verdier for y'(x)
-d2y = cs(x,2)   #d2y=tabell med 1401 verdier for y''(x)
 
-#Plotteeksempel: Banens form y(x)
-'''
-baneform = plt.figure('y(x)',figsize=(12,6))
-plt.plot(x,y,xfast,yfast,'*')
-plt.title('Banens form')
-plt.xlabel('$x$ (m)',fontsize=20)
-plt.ylabel('$y(x)$ (m)',fontsize=20)
-plt.ylim(0,0.40)
-plt.grid()
-plt.show()'''
-#Figurer kan lagres i det formatet du foretrekker:
-#baneform.savefig("baneform.pdf", bbox_inches='tight')
+Nx = len(x)     # Lengden av x
+y = cs(x)       # y(x) med 1401 verdier
+dy = cs(x,1)    # dy(x) med 1401 verdier 
+d2y = cs(x,2)   # d2y(x) med 1401 verdier
 
-g = 9.81
-c = 2/5
-M = 0.031
+
+# Konstanter
+
+# Gravitasjonskonstanten:
+g = 9.81                       
+# Treghetsmoment:
+c = 2/5                         
+# Kulas masse i kg:
+M = 0.031 
+# X_0, første X-posisjon til kula:                      
 x0 = x[0]
+# Y_0, første Y-posisjon til kula:                       
 y0 = cs(x0)
+# Startfart: > 0 (Euler):                     
 v0 = 0.000001
-t0 = 0
-dt = 1.1/1000
+# Starttid:                   
+t0 = 0    
+# Tidssteg:                      
+dt = 1.1/1000                   
+# Array med x-posisjoner: 
 x_t = [x0] * 1001
+# Array med y-posisjoner:              
 y_t = [y0] * 1001
-v_t = [v0] * 1001
-t_list = [t0] * 1001
+# Array med hastigheter:               
+v_t = [v0] * 1001 
+# Array med medgått tid:              
+t_list = [t0] * 1001            
 
 
+# Beregner akselerasjon med hensyn paa x
 def a(x):
     return -(5*g/7)*np.sin(np.arctan(cs(x,1)))
 
 
+# Eulers metode for å beregne X, Y og v
+# av t, samt tidsstegene
 for n in range(1000):
     x_t[n + 1] = x_t[n] + v_t[n] * dt
     y_t[n + 1] = cs(x_t[n + 1])
@@ -94,66 +71,75 @@ for n in range(1000):
     t_list[n + 1] = (n + 1) * dt
 
   
-#finner N mhp x
+# Beregner N med hensyn på X
 v_x = np.sqrt((2*g*(y0-y))/(1+c))
 k = d2y/(1 + dy**2)**(3/2)
 a_normal = v_x**2*k
 N = M*(g*np.cos(np.arctan(dy)) + a_normal)
 F = (2*M*g*np.sin(np.arctan(dy)))/7
-#plt.plot(x, F/N)
-#print(x_t)
-#print(y_t)
-#plt.plot(x_t, y_t)
-#N/R bør være mindre enn 0.2
-#plt.plot(t_new, x_new)
-#plt.plot()
-#plt.plot(x,y)
 
-#plt.grid()
-#plt.show()
 
+# Plotter eksperimentelt resultat (x(t)):
+def printXofTCompare():
+    t, x, y, v = np.genfromtxt("data/10.csv", delimiter=",", skip_header=2, unpack=True)
+
+
+
+    plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
+    plt.plot(t, x, color="red", label="Eksperimentell posisjon")
+    plt.plot(t_list, x_t, color="blue", label="Numerisk posisjon")
+    plt.legend()
+    plt.xlabel("Tid t - (s)", fontsize = 18)
+    plt.ylabel("Posisjon x - (m)", fontsize = 18)
+    plt.grid()
+    plt.savefig("figurer/XofTComp")
+    plt.show()
+
+
+
+# Plotter X av t
 def printXofT():
     plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
     plt.plot(t_list, x_t)
-    #plt.title("")
     plt.xlabel("Tid t - (s)", fontsize = 18)
     plt.ylabel("Posisjon x - (m)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/XofT")
     plt.show()
 
+# Plotter V av t
 def printVofT():
     plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
     plt.plot(t_list, v_t)
-    #plt.title("")
     plt.xlabel("Tid t - (s)", fontsize = 18)
     plt.ylabel("Hastighet v - (m/s)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/VofT")
     plt.show()
 
+# Plotter F av X
 def printFofX():
     plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
     plt.plot(x, F)
-    #plt.title("")
     plt.xlabel("Posisjon x - (m)", fontsize = 18)
-    plt.ylabel("Friksjonskraft f - (mN)", fontsize = 18)
+    plt.ylabel("Friksjonskraft f - (N)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/FofX")
     plt.show()
 
+# Plotter N av X
 def printNofX():
     plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
     plt.plot(x, N)
-    #plt.title("")
     plt.xlabel("Posisjon x - (m)", fontsize = 18)
-    plt.ylabel("Normalkraft N - (mN)", fontsize = 18)
+    plt.ylabel("Normalkraft N - (N)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/NofX")
     plt.show()
 
+# Plotter Y av X - Banens form
 def printYofX():
-    plt.figure(figsize=(12.7), facecolor="w", edgecolor="w")
+    plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
     plt.plot(x, y)
     plt.xlabel("Posisjon x - (m)", fontsize = 18)
     plt.ylabel("Posisjon y - (m)", fontsize = 18)
@@ -161,8 +147,23 @@ def printYofX():
     plt.savefig("figurer/YofX")
     plt.show()
 
+# Plotter F/N av X
+def printFNofX():
+    plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
+    plt.plot(x, abs(F/N))
+    plt.xlabel("Posisjon x -(m)", fontsize = 18)
+    plt.ylabel("[f/N]", fontsize = 18)
+    plt.grid()
+    plt.savefig("figurer/FNofX")
+    plt.show()
+
+
 if __name__ == "__main__":
     printXofT()
     printVofT()
     printFofX()
     printNofX()
+    printYofX()
+    printFNofX()
+    print("Sluttfart: ", v_t[-1])
+    printXofTCompare()
