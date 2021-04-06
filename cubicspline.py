@@ -27,7 +27,6 @@ dy = cs(x,1)    # dy(x) med 1401 verdier
 d2y = cs(x,2)   # d2y(x) med 1401 verdier
 
 # TIME:
-
 time_steps = 10000
 
 # Konstanter
@@ -50,8 +49,6 @@ t0 = 0
 dt = 1.15/time_steps                   
 # Array med x-posisjoner: 
 x_t = [x0] * (time_steps+1)
-# Array med y-posisjoner:              
-y_t = [y0] * (time_steps+1)
 # Array med hastigheter:               
 v_t = [v0] * (time_steps+1)
 # Array med medgått tid:
@@ -67,7 +64,6 @@ def a(x):
 last_time_step = 0
 for n in range(time_steps):
     x_t[n + 1] = x_t[n] + v_t[n] * dt
-    y_t[n + 1] = cs(x_t[n + 1])
     current_a = a(x_t[n])
     v_t[n + 1] = v_t[n] + current_a * dt
     if x_t[n+1] >= 1.4:
@@ -77,7 +73,6 @@ if last_time_step==0:
     raise("Error")
 
 x_t = x_t[:last_time_step+1]
-y_t = y_t[:last_time_step+1]
 v_t = v_t[:last_time_step+1]
 t_list = t_list[:last_time_step+1]
 
@@ -88,10 +83,11 @@ a_normal = v_x**2*k
 N = M*(g*np.cos(np.arctan(dy)) + a_normal)
 F = (2*M*g*np.sin(np.arctan(dy)))/7
 
+# Metode for sammenlikning
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
-    return idx
+    return idx 
 
 # Plotter eksperimentelt resultat (x(t)):
 def printXofTCompare():
@@ -113,8 +109,7 @@ def printXofTCompare():
     plt.ylabel("Posisjon x - (m)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/XofTComp")
-    plt.show()
-
+    #plt.show()
 
 # Plotter X av t
 def printXofT():
@@ -188,7 +183,6 @@ def printFNofX():
 
 
 if __name__ == "__main__":
-    printXofTCompare()
     printVofX()
     printXofT()
     printVofT()
@@ -196,6 +190,7 @@ if __name__ == "__main__":
     printNofX()
     printYofX()
     printFNofX()
+    printXofTCompare()
     
     print("Sluttfart: ", v_t[-1])
     print("Maksfart: ", max(v_t))
