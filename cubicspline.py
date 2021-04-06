@@ -78,16 +78,32 @@ a_normal = v_x**2*k
 N = M*(g*np.cos(np.arctan(dy)) + a_normal)
 F = (2*M*g*np.sin(np.arctan(dy)))/7
 
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
 
 # Plotter eksperimentelt resultat (x(t)):
 def printXofTCompare():
     t, x, y, v = np.genfromtxt("data/10.csv", delimiter=",", skip_header=2, unpack=True)
-
+    compare_y = []
+    i=0
+    t_list2 = np.array(t_list)
+    x_t2 = np.array(x_t)
+    for t_value in t:
+        '''while t_list[i]<t_value:
+            if i < len(t_list)-1:
+                i+=1'''
+        compare_y.append(abs(x[np.where(t == t_value)]-x_t2[find_nearest(t_list2,t_value)]))
+    compare_y = [x[0] for x in compare_y]
+    print(compare_y)
 
 
     plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
-    plt.plot(t, x, color="red", label="Eksperimentell posisjon")
+    plt.plot(t, x, color="green", label="Eksperimentell posisjon")
     plt.plot(t_list, x_t, color="blue", label="Numerisk posisjon")
+    plt.plot(t, compare_y, color="red", label="Diff")
+    plt.fill_between(t, compare_y, 0, color="red")
     plt.legend()
     plt.xlabel("Tid t - (s)", fontsize = 18)
     plt.ylabel("Posisjon x - (m)", fontsize = 18)
@@ -159,11 +175,11 @@ def printFNofX():
 
 
 if __name__ == "__main__":
-    printXofT()
+    '''printXofT()
     printVofT()
     printFofX()
     printNofX()
     printYofX()
     printFNofX()
-    print("Sluttfart: ", v_t[-1])
+    print("Sluttfart: ", v_t[-1])'''
     printXofTCompare()
