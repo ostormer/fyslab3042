@@ -26,11 +26,15 @@ y = cs(x)       # y(x) med 1401 verdier
 dy = cs(x,1)    # dy(x) med 1401 verdier 
 d2y = cs(x,2)   # d2y(x) med 1401 verdier
 
+# TIME:
+
+time_steps = 10000
+
 # Konstanter
 
 # Gravitasjonskonstanten:
-g = 9.81                       
-# Treghetsmoment:
+g = 9.81                      
+# Konstant knyttet til Treghetsmoment:
 c = 2/5
 # Kulas masse i kg:
 M = 0.031
@@ -39,19 +43,19 @@ x0 = x[0]
 # Y_0, første Y-posisjon til kula:
 y0 = cs(x0)
 # Startfart: > 0 (Euler):
-v0 = 0.000001
+v0 = 0.001
 # Starttid:                   
 t0 = 0    
 # Tidssteg:                      
-dt = 1.1/1000                   
+dt = 1.15/time_steps                   
 # Array med x-posisjoner: 
-x_t = [x0] * 1001
+x_t = [x0] * (time_steps+1)
 # Array med y-posisjoner:              
-y_t = [y0] * 1001
+y_t = [y0] * (time_steps+1)
 # Array med hastigheter:               
-v_t = [v0] * 1001
+v_t = [v0] * (time_steps+1)
 # Array med medgått tid:
-t_list = np.linspace(t0, dt*1000, 1001)
+t_list = np.linspace(t0, dt*time_steps, (time_steps+1))
 
 # Beregner akselerasjon med hensyn paa x
 def a(x):
@@ -60,11 +64,22 @@ def a(x):
 
 # Eulers metode for å beregne X, Y og v
 # av t, samt tidsstegene
-for n in range(1000):
+last_time_step = 0
+for n in range(time_steps):
     x_t[n + 1] = x_t[n] + v_t[n] * dt
     y_t[n + 1] = cs(x_t[n + 1])
-    current_a = a(x_t[n + 1])
+    current_a = a(x_t[n])
     v_t[n + 1] = v_t[n] + current_a * dt
+    if x_t[n+1] >= 1.4:
+        last_time_step = n+1
+        break
+if last_time_step==0:
+    raise("Error")
+
+x_t = x_t[:last_time_step+1]
+y_t = y_t[:last_time_step+1]
+v_t = v_t[:last_time_step+1]
+t_list = t_list[:last_time_step+1]
 
 # Beregner N og F med hensyn på X
 v_x = np.sqrt((2*g*(y0-y))/(1+c))
@@ -87,20 +102,18 @@ def printXofTCompare():
     for t_value in t:
         compare_y.append(abs(x[np.where(t == t_value)]-x_t2[find_nearest(t_list2, t_value)]))
     compare_y = [X[0] for X in compare_y]
-    print(compare_y)
-
 
     plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
     plt.plot(t, x, color="green", label="Eksperimentell posisjon")
     plt.plot(t_list, x_t, color="blue", label="Numerisk posisjon")
-    plt.plot(t, compare_y, color="red", label="Diff")
+    plt.plot(t, compare_y, color="red", label="Differanse")
     plt.fill_between(t, compare_y, 0, color="red")
     plt.legend()
     plt.xlabel("Tid t - (s)", fontsize = 18)
     plt.ylabel("Posisjon x - (m)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/XofTComp")
-    # plt.show()
+    plt.show()
 
 
 # Plotter X av t
@@ -122,6 +135,16 @@ def printVofT():
     plt.grid()
     plt.savefig("figurer/VofT")
     # plt.show()
+
+# Plotter V av x
+def printVofX():
+    plt.figure(figsize=(12,7), facecolor="w", edgecolor="w")
+    plt.plot(x_t, v_t)
+    plt.xlabel("Posisjon x - (m)", fontsize = 18)
+    plt.ylabel("Hastighet v - (m/s)", fontsize = 18)
+    plt.grid()
+    plt.savefig("figurer/VofX")
+    #plt.show()
 
 # Plotter F av X
 def printFofX():
@@ -165,11 +188,18 @@ def printFNofX():
 
 
 if __name__ == "__main__":
+    printXofTCompare()
+    printVofX()
     printXofT()
     printVofT()
     printFofX()
     printNofX()
     printYofX()
     printFNofX()
+    
     print("Sluttfart: ", v_t[-1])
-    printXofTCompare()
+    print("Maksfart: ", max(v_t))
+    print("Tid ved høyeste hastighet: ", t_list[v_t.index(max(v_t))])
+    print("Medgått tid: ", t_list[-1])
+    
+    
