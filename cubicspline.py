@@ -1,6 +1,5 @@
 #Importerer noedvendige biblioteker:
 import matplotlib.pyplot as plt
-import math
 import numpy as np
 from scipy.interpolate import CubicSpline
 
@@ -8,39 +7,38 @@ from scipy.interpolate import CubicSpline
 t, x, y = np.genfromtxt("data/bane.csv", delimiter=",", skip_header=2, unpack=True)
 
 # Festepunktene til banen - 8 stk:
-xfast = x
-yfast = y
+xFast = x
+yFast = y
 
 # Beregner tredjegradspolynomene av banen.
 # Gir y(x), y'(x) og y''(x) 
 # av cs(x), cs(x,1) og cs(x,2)
-cs = CubicSpline(xfast, yfast, bc_type='natural')
+cs = CubicSpline(xFast, yFast, bc_type='natural')
 
 # Tabell med x-verdier mellom 0 og 1.4 m 
-xmin = 0.000
-xmax = 1.401
+xMin = 0.000
+xMax = 1.401
 dx = 0.001
-x = np.arange(xmin, xmax, dx)   
+x = np.arange(xMin, xMax, dx)
 
 Nx = len(x)     # Lengden av x
 y = cs(x)       # y(x) med 1401 verdier
 dy = cs(x,1)    # dy(x) med 1401 verdier 
 d2y = cs(x,2)   # d2y(x) med 1401 verdier
 
-
 # Konstanter
 
 # Gravitasjonskonstanten:
 g = 9.81                       
 # Treghetsmoment:
-c = 2/5                         
+c = 2/5
 # Kulas masse i kg:
-M = 0.031 
-# X_0, første X-posisjon til kula:                      
+M = 0.031
+# X_0, første X-posisjon til kula:
 x0 = x[0]
-# Y_0, første Y-posisjon til kula:                       
+# Y_0, første Y-posisjon til kula:
 y0 = cs(x0)
-# Startfart: > 0 (Euler):                     
+# Startfart: > 0 (Euler):
 v0 = 0.000001
 # Starttid:                   
 t0 = 0    
@@ -51,10 +49,9 @@ x_t = [x0] * 1001
 # Array med y-posisjoner:              
 y_t = [y0] * 1001
 # Array med hastigheter:               
-v_t = [v0] * 1001 
-# Array med medgått tid:              
-t_list = [t0] * 1001            
-
+v_t = [v0] * 1001
+# Array med medgått tid:
+t_list = np.linspace(t0, dt*1000, 1001)
 
 # Beregner akselerasjon med hensyn paa x
 def a(x):
@@ -68,10 +65,8 @@ for n in range(1000):
     y_t[n + 1] = cs(x_t[n + 1])
     current_a = a(x_t[n + 1])
     v_t[n + 1] = v_t[n] + current_a * dt
-    t_list[n + 1] = (n + 1) * dt
 
-  
-# Beregner N med hensyn på X
+# Beregner N og F med hensyn på X
 v_x = np.sqrt((2*g*(y0-y))/(1+c))
 k = d2y/(1 + dy**2)**(3/2)
 a_normal = v_x**2*k
@@ -87,15 +82,11 @@ def find_nearest(array, value):
 def printXofTCompare():
     t, x, y, v = np.genfromtxt("data/10.csv", delimiter=",", skip_header=2, unpack=True)
     compare_y = []
-    i=0
     t_list2 = np.array(t_list)
     x_t2 = np.array(x_t)
     for t_value in t:
-        '''while t_list[i]<t_value:
-            if i < len(t_list)-1:
-                i+=1'''
-        compare_y.append(abs(x[np.where(t == t_value)]-x_t2[find_nearest(t_list2,t_value)]))
-    compare_y = [x[0] for x in compare_y]
+        compare_y.append(abs(x[np.where(t == t_value)]-x_t2[find_nearest(t_list2, t_value)]))
+    compare_y = [X[0] for X in compare_y]
     print(compare_y)
 
 
@@ -109,8 +100,7 @@ def printXofTCompare():
     plt.ylabel("Posisjon x - (m)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/XofTComp")
-    plt.show()
-
+    # plt.show()
 
 
 # Plotter X av t
@@ -121,7 +111,7 @@ def printXofT():
     plt.ylabel("Posisjon x - (m)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/XofT")
-    plt.show()
+    # plt.show()
 
 # Plotter V av t
 def printVofT():
@@ -131,7 +121,7 @@ def printVofT():
     plt.ylabel("Hastighet v - (m/s)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/VofT")
-    plt.show()
+    # plt.show()
 
 # Plotter F av X
 def printFofX():
@@ -141,7 +131,7 @@ def printFofX():
     plt.ylabel("Friksjonskraft f - (N)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/FofX")
-    plt.show()
+    # plt.show()
 
 # Plotter N av X
 def printNofX():
@@ -151,7 +141,7 @@ def printNofX():
     plt.ylabel("Normalkraft N - (N)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/NofX")
-    plt.show()
+    # plt.show()
 
 # Plotter Y av X - Banens form
 def printYofX():
@@ -161,7 +151,7 @@ def printYofX():
     plt.ylabel("Posisjon y - (m)", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/YofX")
-    plt.show()
+    # plt.show()
 
 # Plotter F/N av X
 def printFNofX():
@@ -171,15 +161,15 @@ def printFNofX():
     plt.ylabel("[f/N]", fontsize = 18)
     plt.grid()
     plt.savefig("figurer/FNofX")
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
-    '''printXofT()
+    printXofT()
     printVofT()
     printFofX()
     printNofX()
     printYofX()
     printFNofX()
-    print("Sluttfart: ", v_t[-1])'''
+    print("Sluttfart: ", v_t[-1])
     printXofTCompare()
