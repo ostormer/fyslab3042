@@ -5,7 +5,7 @@ end_speeds = []
 
 # Iterer over hver av tracker-analysene, beregner sluttfart i hvert tilfelle.
 # Tracker utelater siste frame, vi beregner sluttfart i denne:
-for i in range(1,10):
+for i in range(1,11):
     filename = "data/" + str(i) + ".csv"
     t, x, y, v = np.genfromtxt(filename, delimiter=",", skip_header=2, unpack=True)
     dist = np.sqrt((x[-1] - x[-2])**2 + (y[-1] - y[-2])**2)         # Avstand mellom siste frames  
@@ -25,3 +25,4 @@ standard_error = standard_diviation/np.sqrt(len(end_speeds))
 print("Mean", mean)
 print("Standard diviation", standard_diviation)
 print("Standard error: ", standard_error)
+print(end_speeds)
